@@ -11,6 +11,8 @@ import { useNavigate } from "react-router";
 import { toast } from "sonner";
 import type { TableData } from "@/types/TableData";
 
+const baseUrl = import.meta.env.VITE_BASE_URL || "";
+
 type Props = {
   tableData: TableData[];
   setTableData: React.Dispatch<React.SetStateAction<TableData[]>>;
@@ -83,14 +85,17 @@ export function Dashboard({ tableData, setTableData, displayData }: Props) {
                 <div className="flex justify-between px-2">
                   {row.short_code}
                   <Clipboard
-                    onClick={() => onClickCopy(row.short_code)}
+                    onClick={() => onClickCopy(`${baseUrl}/${row.short_code}`)}
                     className="hover:cursor-pointer"
                   />
                 </div>
               </TableCell>
               <TableCell>
                 <div className="flex justify-between items-center gap-2 px-2">
-                  <span title={row.long_url} className="block max-w-[50ch] truncate">
+                  <span
+                    title={row.long_url}
+                    className="block max-w-[50ch] truncate"
+                  >
                     {row.long_url}
                   </span>
                   <Clipboard

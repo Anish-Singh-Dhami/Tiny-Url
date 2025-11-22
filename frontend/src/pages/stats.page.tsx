@@ -11,6 +11,9 @@ import {
   TableHead,
 } from "@/components/ui/table";
 import { toast } from "sonner";
+import { Clipboard } from "lucide-react";
+
+const baseUrl = import.meta.env.VITE_BASE_URL || "";
 
 export function StatsPage() {
   const { code } = useParams();
@@ -38,6 +41,11 @@ export function StatsPage() {
     };
   }, [code]);
 
+  const onClickCopy = (text: string) => {
+    toast.success("Copied to clipboard!");
+    navigator.clipboard.writeText(text);
+  };
+
   return (
     <div className="p-8 container mx-auto">
       <div className="flex items-center justify-between mb-6">
@@ -62,7 +70,13 @@ export function StatsPage() {
       {!loading && data && (
         <div className="grid grid-cols-1 gap-4">
           <div className="rounded-lg border-3 p-4">
-            <h2 className="text-xl font-medium mb-2">{data.short_code}</h2>
+            <div className="flex items-center gap-2 mb-2">
+              <h2 className="text-xl font-medium">{`${baseUrl}/${data.short_code}`}</h2>
+              <Clipboard
+                onClick={() => onClickCopy(`${baseUrl}/${data.short_code}`)}
+                className="hover:cursor-pointer"
+              />
+            </div>
             <p className="text-sm text-muted-foreground mb-4">Short code</p>
 
             <Table>
