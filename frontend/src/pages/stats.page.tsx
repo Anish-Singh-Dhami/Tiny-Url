@@ -56,7 +56,7 @@ export function StatsPage() {
           </Button>
           <Button
             onClick={() => {
-              if (data) window.open(data.long_url, "_blank");
+              if (data) window.open(data.target_url, "_blank");
             }}
             disabled={!data}
           >
@@ -91,13 +91,13 @@ export function StatsPage() {
                   <TableCell className="font-medium">Target URL</TableCell>
                   <TableCell>
                     <a
-                      href={data.long_url}
+                      href={data.target_url}
                       target="_blank"
                       rel="noreferrer"
-                      title={data.long_url}
+                      title={data.target_url}
                       className="text-primary underline"
                     >
-                      {data.long_url}
+                      {data.target_url}
                     </a>
                   </TableCell>
                 </TableRow>

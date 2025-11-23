@@ -49,7 +49,7 @@ export function AddLinkModal({ onAdd }: Props) {
     setLoading(true);
     try {
       const newRow = await createShortUrl({
-        long_url: targetUrl.trim(),
+        target_url: targetUrl.trim(),
         custom_code: customCode.trim() || undefined,
       });
       onAdd(newRow);

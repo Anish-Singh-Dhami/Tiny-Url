@@ -2,17 +2,14 @@ import type { TableData } from "@/types/TableData";
 
 const BACKEND_BASE = import.meta.env.VITE_BACKEND_URL ?? "";
 
-export type ShortUrlStats = TableData & { created_at: string };
-
-export async function getShortUrlStats(code: string): Promise<ShortUrlStats> {
-  const res = await fetch(
-    `${BACKEND_BASE}/api/links/${encodeURIComponent(code)}`
-  );
+// Fetch all short URLs from backend API
+export async function fetchAllShortUrls(): Promise<TableData[]> {
+  const res = await fetch(`${BACKEND_BASE}/api/links`);
   if (res.status === 200) {
     const json = await res.json();
-    return json as ShortUrlStats;
+    return json as TableData[];
   }
-  let errText = `Failed to fetch (${res.status})`;
+  let errText = `Failed to fetch list (${res.status})`;
   try {
     const body = await res.json();
     if (body?.message) errText = body.message;
@@ -21,3 +18,5 @@ export async function getShortUrlStats(code: string): Promise<ShortUrlStats> {
   err.status = res.status;
   throw err;
 }
+
+export default fetchAllShortUrls;

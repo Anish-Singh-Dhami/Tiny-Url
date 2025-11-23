@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router";
-import { redirectShortUrl } from "@/api/redirectShortUrl";
+import { shortUrlServerPath } from "@/api/redirectShortUrl";
+import { getShortUrlStats } from "@/api/getShortUrlStats";
 import { toast } from "sonner";
 
 export function RedirectPage() {
@@ -19,14 +20,16 @@ export function RedirectPage() {
 
       try {
         setLoading(true);
-        // Call backend to increment and fetch the long URL
-        const res = await redirectShortUrl(code);
+        // First check the link exists (so we can show loading / 404 UI).
+        // This calls the backend status API (`GET /api/links/:code`).
+        await getShortUrlStats(code);
 
-        // If component unmounted, do nothing
+        // If the link exists and component still mounted, navigate to the
+        // backend redirect path which performs the canonical 302 and
+        // increments counters.
         if (!mounted) return;
-
-        // Navigate using location.replace to avoid leaving a history entry
-        window.location.replace(res.long_url);
+        const path = shortUrlServerPath(code);
+        window.location.replace(path);
       } catch (err: any) {
         // If 404, show not found UI
         if (err?.status === 404 || /not found/i.test(err?.message || "")) {

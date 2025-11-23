@@ -6,9 +6,17 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { ArrowUpDown, ChartLine, Clipboard, Trash2 } from "lucide-react";
+import {
+  ArrowUpDown,
+  ChartLine,
+  Clipboard,
+  Trash2,
+  Loader2,
+} from "lucide-react";
 import { useNavigate } from "react-router";
 import { toast } from "sonner";
+import { deleteShortUrl } from "@/api/deleteShortUrl";
+import { useState } from "react";
 import type { TableData } from "@/types/TableData";
 
 const baseUrl = import.meta.env.VITE_BASE_URL || "";
@@ -22,15 +30,26 @@ type Props = {
 export function Dashboard({ tableData, setTableData, displayData }: Props) {
   const rows = displayData ?? tableData;
   const navigate = useNavigate();
+  const [deleting, setDeleting] = useState<Record<string, boolean>>({});
 
   const onClickCopy = (text: string) => {
     toast.success("Copied to clipboard!");
     navigator.clipboard.writeText(text);
   };
 
-  const onClickDelete = (short_code: string) => {
-    const newData = tableData.filter((row) => row.short_code !== short_code);
-    setTableData(newData);
+  const onClickDelete = async (short_code: string) => {
+    if (!short_code) return;
+    // disable the delete control for this code
+    setDeleting((d) => ({ ...d, [short_code]: true }));
+    try {
+      await deleteShortUrl(short_code);
+      setTableData((prev) => prev.filter((r) => r.short_code !== short_code));
+      toast.success(`Deleted ${short_code}`);
+    } catch (err: any) {
+      toast.error(err?.message || "Delete failed");
+    } finally {
+      setDeleting((d) => ({ ...d, [short_code]: false }));
+    }
   };
 
   const onClickStats = (short_code: string) => {
@@ -65,10 +84,10 @@ export function Dashboard({ tableData, setTableData, displayData }: Props) {
           </TableHead>
           <TableHead className="text-center">
             <div className="flex justify-center items-center gap-4">
-              Long URL
+              Target URL
               <ArrowUpDown
                 className="hover:cursor-pointer"
-                onClick={() => onClickSortToggle("long_url")}
+                onClick={() => onClickSortToggle("target_url")}
               />
             </div>
           </TableHead>
@@ -93,13 +112,13 @@ export function Dashboard({ tableData, setTableData, displayData }: Props) {
               <TableCell>
                 <div className="flex justify-between items-center gap-2 px-2">
                   <span
-                    title={row.long_url}
+                    title={row.target_url}
                     className="block max-w-[50ch] truncate"
                   >
-                    {row.long_url}
+                    {row.target_url}
                   </span>
                   <Clipboard
-                    onClick={() => onClickCopy(row.long_url)}
+                    onClick={() => onClickCopy(row.target_url)}
                     className="hover:cursor-pointer"
                   />
                 </div>
@@ -108,10 +127,18 @@ export function Dashboard({ tableData, setTableData, displayData }: Props) {
               <TableCell className="text-center">{row.last_clicked}</TableCell>
               <TableCell className="text-center">
                 <div className="flex justify-center gap-4">
-                  <Trash2
-                    className="hover:cursor-pointer"
-                    onClick={() => onClickDelete(row.short_code)}
-                  />
+                  {deleting[row.short_code] ? (
+                    <Loader2 className="animate-spin opacity-70" />
+                  ) : (
+                    <button
+                      onClick={() => onClickDelete(row.short_code)}
+                      aria-label={`Delete ${row.short_code}`}
+                      title={`Delete ${row.short_code}`}
+                      className="hover:cursor-pointer"
+                    >
+                      <Trash2 />
+                    </button>
+                  )}
                   <ChartLine
                     className="hover:cursor-pointer"
                     onClick={() => onClickStats(row.short_code)}
