@@ -7,7 +7,7 @@
   "type": "module",
   "main": "src/server.ts",
   "scripts": {
-    "build": "tsc -p .",
+    "build": "npm install && npx tsc -p .",
     "start": "node ./dist/server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
