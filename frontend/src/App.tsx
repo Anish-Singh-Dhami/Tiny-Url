@@ -20,11 +20,11 @@ const router = createBrowserRouter([
         element: <StatsPage />,
       },
       {
-        path: ":code",
+        path: "/:code",
         element: <RedirectPage />,
       },
       {
-        path: "healthz",
+        path: "/healthz",
         element: <HealthPage />,
       },
     ],
